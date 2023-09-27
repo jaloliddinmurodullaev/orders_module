@@ -1,20 +1,38 @@
+# build-ins
 import uuid
 from datetime import datetime, timedelta
 
+# django
 from django.utils import timezone
 
+# rest_framework
 from rest_framework import viewsets
 from rest_framework import status
 from rest_framework.response import Response
 
-from .models import Order, Passenger, Offer
+# models
+from .models import Order     
+from .models import Passenger
+
+# validators
+from .validators import Validator
+
+# serializers
 from .serializers import OrderSerializer
+from .serializers import OrderCreateSerializer
+from .serializers import OrderUpdateSerializer
+from .serializers import PassengerUpdateSerializer
+from .serializers import PassengerRetrieveSerializer
+
+# paginations
 from .pagination import OrderCustomPagination
 
+
 class OrderViewSet(viewsets.ModelViewSet):
-    queryset          = Order.objects.all().prefetch_related('passengers')
+    queryset          = Order.objects.all()
     pagination_class  = OrderCustomPagination
     http_method_names = ['patch', 'get', 'post', ]
+    serializer_class  = OrderSerializer
 
     def get_queryset(self):
         order_queryset = self.queryset
@@ -51,7 +69,7 @@ class OrderViewSet(viewsets.ModelViewSet):
             input_format = '%Y-%m-%d'
             output_format = '%Y-%m-%d %H:%M:%S'
 
-            parsed_date_from = datetime.strptime(date_from, input_format)
+            parsed_date_from  = datetime.strptime(date_from, input_format)
             formatted_date_from = parsed_date_from.strftime(output_format)
 
             parsed_date_to = timezone.make_aware(datetime.strptime(date_to, input_format))
@@ -64,39 +82,56 @@ class OrderViewSet(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         data = request.data
+        request_data_validator = Validator(data)
+        if request_data_validator.order_creation_request_data_validator():
+            last_order = self.queryset.last()
 
-        last_order = self.queryset.last()
+            for passenger in data['passengers']:
+                passenger['passenger_id'] = uuid.uuid4()
+                # passenger['ticket'] = passenger['ticket_info']
 
-        for passenger in data['passengers']:
-            passenger['passenger_id'] = uuid.uuid4()
-        
-        if last_order is not None:
-            number = self.queryset.last()
-            data['primary_key'] = number.primary_key + 1
-        else:
-            data['primary_key'] = 1
+            if last_order is not None:
+                number = self.queryset.last()
+                data['order_number'] = number.order_number + 1
+            else:
+                data['order_number'] = 1
 
-        serializer = OrderSerializer(data=data)
+            serializer = OrderCreateSerializer(data=data)
 
-        if serializer.is_valid():
-            serializer.save()
+            if serializer.is_valid():
+                self.perform_create(serializer)
+                response = {
+                    'status' : 'success',
+                    'message': 'booking data has been saved'
+                }
+                return Response(data=response, status=status.HTTP_201_CREATED)
+            
             response = {
-                'status' : 'success',
-                'message': 'booking data has been saved'
+                'status' : 'error',
+                'message': 'booking data has not been saved'
             }
-            return Response(data=response, status=status.HTTP_201_CREATED)
-        
-        response = {
-            'status' : 'error',
-            'message': 'booking data has not been saved'
-        }
-        return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            response = {
+                'status' : 'error',
+                'message': 'Order creation data is invalid. Please check it again!'
+            }
+            return Response(data=response, status=status.HTTP_400_BAD_REQUEST)
 
     def update(self, request, *args, **kwargs):
         instance = self.get_object()
-        serializer = OrderSerializer(instance=instance, data=request.data, partial=True)
+
+        try:
+            serializer = OrderUpdateSerializer(instance=instance, data=request.data, partial=True)
+        except Exception as e:
+            response = {
+                "status": "error",
+                "messsage": str(e)
+            }
+            return Response(response, status=status.HTTP_400_BAD_REQUEST) 
+
         if serializer.is_valid():
-            serializer.save()
+            self.perform_update(serializer)
             response = {
                 'status' : 'success',
                 'message': 'booking data has been updated'
@@ -109,15 +144,62 @@ class OrderViewSet(viewsets.ModelViewSet):
         }
         return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def get_serializer_class(self):
-        return OrderSerializer
 
+class PassengerView(viewsets.ModelViewSet):
+    queryset = Passenger.objects.all()
 
+    def get_object(self, *args, **kwargs):
+        order_number = self.kwargs['order_number']
+        passenger_id = self.kwargs['passenger_id']
+        
+        try:
+            order = Order.objects.get(order_number=order_number)
+        except Exception as e:
+            return None
+        
+        try:
+            passenger = self.queryset.get(order_id=order.order_number, passenger_id=passenger_id)
+        except Exception as e:
+            return None 
+        
+        return passenger
 
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
 
+        try:
+            serializer = PassengerUpdateSerializer(instance, data=request.data, partial=True)
+        except Exception as e:
+            response = {
+                "status": "error",
+                "messsage": str(e)
+            }
+            return Response(response, status=status.HTTP_400_BAD_REQUEST) 
+        
+        if serializer.is_valid():
+            self.perform_update(serializer)
+            response = {
+                "status": "success",
+                "messsage": "passenger data has been updated"
+            }
+            return Response(response, status=status.HTTP_201_CREATED)
+        
+        response = {
+            "status": "error",
+            "messsage": "passenger data has not been updated"
+        }
+        return Response(response, status=status.HTTP_400_BAD_REQUEST)
 
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
 
+        if instance is not None:
+            serializer = PassengerRetrieveSerializer(instance=instance)
+            return Response(data=serializer.data, status=status.HTTP_200_OK)
 
-
-
+        response = {
+            "status": "error",
+            "message": "passenger not found"
+        }
+        return Response(response, status=status.HTTP_404_NOT_FOUND)
 

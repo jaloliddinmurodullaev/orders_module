@@ -1,0 +1,165 @@
+{
+    "agent": {
+        "agent_id": "",
+        "agent_name": "Jaloliddin Travel"
+    },
+    "gds_pnr": "L9J87M", // PNR от GDS
+    "supplier_pnr": "J9-L9J87M", // PNR поставщика
+    "status": "T", // Статус заказа
+    "created_at": "2024-09-11 21:13:00", // дата и время создания заказа
+    "ticket_time_limit": "2023-09-13 21:43:00", // Время до выписки билета
+    "void_time_limit": 120, //false или количество минут до воида 
+    "price_info": {  // Стоимость заказа / всех билетов в заказе (false | float)
+        "price": 252.00,
+        "fee_amount": 1.02,
+        "commission_amount": 0
+    },
+    "currency": "USD", // Валюта заказа
+    "passengers": [
+        {
+            "passenger_type": "ADT", // Тип пассажира
+            "firstname": "Jaloliddin", // Имя пассажира
+            "lastname": "Murodullayev", // Фамилия пассажира
+            "middlename": "Hojiakbar o'g'li", // Отчество пассажира
+            "birth_date": "2001-09-01", // Дата рождения
+            "gender": "Male", // Пол пассажира
+            "document": {
+                "passport_number": "AB7748325", // Номер документа
+                "passport_expiry": "2030-12-12", // Срок действия документа
+                "nationality": "UZ", // Гражданство пассажира
+                "document_type": "PSP" // Тип документа
+            },
+            "passenger_category": "Student", // Категория пассажира
+            "phone_number": "+9989992747465", // Номер телефона пассажира
+            "email_address": "test@mail.uz", // Почта пассажира
+            "ticket_info": {
+                "price_info": [
+                    {
+                        "base_amount": 91.13,
+                        "tax_amount": 32.25,
+                        "tax_details": [
+                            {
+                                "code": "YQ",
+                                "total": 1200,
+                                "currency": "RUB",
+                                "description": "Additional fee added to the base fare of an airline ticket"
+                            }
+                        ],
+                        "fee_amount": 1.04,
+                        "commission_amount": 0,
+                        "total_amount": 124.42,
+                        "payable_amount": 124.42
+                    }
+                ],
+                "fares_info": [
+                    {
+                        "leg": "IST-ESB",
+                        "upsell": {
+                            "name": "Lite",
+                            "services": [
+                                {
+                                    "status": true,
+                                    "code": "AKN",
+                                    "name": "Bonus meal"
+                                }
+                            ]
+                        },
+                        "fare_code": "QEF",
+                        "service_class": "economy",
+                        "booking_class": "L",
+                        "fare_messages": {
+                            "LTD": "",
+                            "PEN": ""
+                            
+                        },
+                        "description": ""
+                    }
+                ],
+                "baggage_info": [
+                    {
+                        "leg": "IST-ESB",
+                        "baggage": {
+                            "value": 1,
+                            "unit": "PC",
+                            "size":{
+                                "height": 129,
+                                "width": 236,
+                                "length": 112,
+                                "unit": "cm"
+                            }
+                        },
+                        "hand_baggage": {
+                            "value": 1,
+                            "unit": "PC",
+                            "size":{
+                                "height": 29,
+                                "width": 23,
+                                "length": 17,
+                                "unit": "cm"
+                            }
+                        },
+                        "description": " "
+                    }
+                ]
+            }
+        }
+    ],
+    "fare": {
+        "offer_id": "4b739ef16ee7af525f7381b2ba7ce661",
+        "routes": [
+            {
+                "route_index": 1,
+                "direction": "TAS-IST",
+                "stops": 1, // Количество пересадок
+                "segments": [
+                    {
+                        "leg": "IST-ESB", // IATA коды данного сегмента
+                        "departure_airport": "IST", // IATA аэропорта вылета
+                        "departure_date": "2023-04-04", // дата вылета
+                        "departure_time": "13:00:00", // время вылета
+                        "departure_timezone": "GMT+5:00", // часовой пояс города вылета
+                        "arrival_airport": "ESB", // IATA аэропорта прилета
+                        "arrival_date": "2023-04-04", // дата прилета
+                        "arrival_time": "14:05:00", // время прилета
+                        "arrival_timezone": "GMT+5:00", // часовой пояс города прилета
+                        "duration_minutes": 65, // количество минут перелета
+                        "carrier_code": "TK", // IATA код авиакомпании
+                        "carrier_name": "Turkish Airlines", // Полное название авиакомпании
+                        "carrier_logo": "https://b2b.easybooking.uz/images/airline/TK.svg", // логотип авиакомпании
+                        "flights_info": {
+                            "departure_country": "Turkey", // Страна вылета
+                            "departure_city": "Istanbul", // город вылета
+                            "departure_terminal": "", // терминал в вылетающем аэропорте
+                            "stop_time_minutes": 150, // Время ожидания пересадки
+                            "arrival_country": "Turkey", // Страна прилета
+                            "arrival_city": "Ankara", // Город прилета
+                            "arrival_terminal": "", // Терминал в прилетающем аэропорту
+                            "airplane_info": {
+                                "airplane_name": "78D BOEING B737-800", // Название самолета
+                                "airplane_code": "78D", // Код борта
+                                "has_wifi": true, // Наличие Wi-Fi на борту
+                                "seat_angle": "10cm", // уклон наклона сиденьи на борту
+                                "seat_width": "43cm", // Ширина сиденья на борту
+                                "seat_distance": "70cm" // Расстояние между сиденьями
+                            },
+                            "marketing_airline_code": "TK",
+                            "marketing_airline_logo": "https://b2b.easybooking.uz/images/airline/TK.svg",
+                            "marketing_airline_name": "Turkish Airlines",
+                            "operating_airline_code": "TK",
+                            "operating_airline_logo": "https://b2b.easybooking.uz/images/airline/TK.svg",
+                            "operating_airline_name": "Turkish Airlines"
+                        },
+                        "fare_messages": {
+                            "LTD": "",
+                            "PEN": ""
+                        }
+                    }
+                ]
+            }
+        ]
+    },
+    "provider": {
+        "name": "AerTicket", // Название провайдера
+        "provider_id": "1233-12323-1122-12233334" // ID провайдера
+    }
+}

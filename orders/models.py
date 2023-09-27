@@ -1,86 +1,90 @@
+# django
 from django.db import models
 
-class Document(models.Model):
-    passport_number = models.CharField(max_length=255)
-    passport_expiry = models.DateField()
-    nationality     = models.CharField(max_length=255)
-    document_type   = models.CharField(max_length=300)
+# Order model that is used to create a table in a database.
+class Order(models.Model):
+    ORDER_STATUS = (
+        ('STATUS_BOOK',         'B'),
+        ('STATUS_TICKET',       'T'),
+        ('STATUS_VOID',         'V'),
+        ('STATUS_REFUND',       'R'),
+        ('STATUS_BOOK_ERROR',   'E'),
+        ('STATUS_TICKET_ERROR', 'C'),
+        ('STATUS_PAID_WAIT',    'O'),
+        ('STATUS_IN_PROGRESS',  'G'),
+        ('STATUS_VOID_ERROR',   'W'),
+        ('STATUS_REFUND_ERROR', 'F'),
+    )
+    
+    order_number      = models.BigIntegerField(primary_key=True)
+    gds_pnr           = models.CharField(max_length=255)
+    supplier_pnr      = models.CharField(max_length=255)
+    status            = models.CharField(max_length=255, choices=ORDER_STATUS, default='STATUS_BOOK')
+    created_at        = models.DateTimeField(auto_now_add=False)
+    ticket_time_limit = models.DateTimeField(null=True, blank=True)
+    void_time_limit   = models.IntegerField(null=True, blank=True)
+    price_info        = models.JSONField()
+    currency          = models.CharField(max_length=255)
+    fare              = models.JSONField()
+    provider          = models.JSONField()
 
-class Offer(models.Model):
-    price_info   = models.JSONField()
-    fares_info   = models.JSONField()
-    baggage_info = models.JSONField() 
+    class Meta:
+        ordering = ['-order_number']
 
+# Agent model that is used to create a table in a database.
+# It is related to Order model.
+class Agent(models.Model):
+    order      = models.OneToOneField(Order, on_delete=models.CASCADE, related_name="agent")
+    agent_id   = models.UUIDField()
+    agent_name = models.CharField(max_length=300)
+
+# Passenger model that is used to create a table in a database.
+# It is related to Order model.
 class Passenger(models.Model):
+    PASSENGER_CATEGORIES = (
+        ('ADT', 'ADT'),
+        ('CHD', 'CHD'),
+        ('INF', 'INF'),
+        ('INS', 'INS')
+    )
 
     PASSENGER_TYPES = (
-        ('ADT', 'ADULT'),
-        ('CHD', 'CHILD'),
-        ('INF', 'INFANT'),
-        ('INS', 'INFANT_WITH_SEAT'),
+        ('Citizen',   'Citizen'),
+        ('Student',   'Student'),
+        ('Disabled',  'Disabled'),
+        ('Pensioner', 'Pensioner'),
     )
 
     GENDER_TYPES = (
-        ('Male', 'Male'),
+        ('Male',   'Male'),
         ('Female', 'Female')
     )
 
-    passenger_id       = models.UUIDField()
+    order              = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='passenger')
+    passenger_id       = models.UUIDField(primary_key=True)
     firstname          = models.CharField(max_length=255)
     lastname           = models.CharField(max_length=255)
     middlename         = models.CharField(max_length=255)
     gender             = models.CharField(choices=GENDER_TYPES)
     birth_date         = models.DateField()
-    passenger_category = models.CharField(max_length=255)
+    passenger_category = models.CharField(choices=PASSENGER_CATEGORIES)
     passenger_type     = models.CharField(choices=PASSENGER_TYPES)
     phone_number       = models.CharField(max_length=255)
     email_address      = models.CharField(max_length=255)
-    offer              = models.OneToOneField(Offer, on_delete=models.SET_DEFAULT, default=None)
-    document           = models.OneToOneField(Document, on_delete=models.SET_DEFAULT, default=None)
 
-    def __str__(self) -> str:
-        return self.firstname
+# Ticket model that is used to create a table in a database.
+# It is related to Passenger model.
+class Ticket(models.Model):
+    passenger    = models.OneToOneField(Passenger, on_delete=models.CASCADE, related_name='ticket_info')
+    price_info   = models.JSONField()
+    fares_info   = models.JSONField()
+    baggage_info = models.JSONField()
 
-class Order(models.Model):
-
-    ORDER_STATUS = (
-        ('B', 'STATUS_BOOK'),
-        ('T', 'STATUS_TICKET'),
-        ('V', 'STATUS_VOID'),
-        ('R', 'STATUS_REFUND'),
-        ('E', 'STATUS_BOOK_ERROR'),
-        ('C', 'STATUS_TICKET_ERROR'),
-        ('O', 'STATUS_PAID_WAIT'),
-        ('G', 'STATUS_IN_PROGRESS'),
-        ('W', 'STATUS_VOID_ERROR'),
-        ('F', 'STATUS_REFUND_ERROR'),
-    )
-
-    primary_key       = models.BigIntegerField(primary_key=True)
-    gds_pnr           = models.CharField(max_length=255)
-    supplier_pnr      = models.CharField(max_length=255)
-    status            = models.CharField(max_length=255, choices=ORDER_STATUS, default='B')
-    created_at        = models.DateTimeField(auto_now_add=False)
-    ticket_time_limit = models.DateTimeField()
-    void_time_limit   = models.IntegerField()
-    price             = models.FloatField()
-    currency          = models.CharField(max_length=255)
-    offer             = models.JSONField()
-    provider          = models.JSONField()
-    airline_code      = models.CharField(max_length=300)
-    passengers        = models.ManyToManyField(Passenger)
-
-    def __str__(self) -> str:
-        return self.gds_pnr
-    
-    class Meta:
-        ordering = ['-primary_key']
-    
-
-
-
-
-
-
-
-
+# Document model that is used to create a table in a database.
+# It is related to Passenger model.
+class Document(models.Model):
+    passenger       = models.OneToOneField(Passenger, on_delete=models.CASCADE, related_name='document')
+    passport_number = models.CharField(max_length=255)
+    passport_expiry = models.DateField()
+    nationality     = models.CharField(max_length=255)
+    document_type   = models.CharField(max_length=300)
