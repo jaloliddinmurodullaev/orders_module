@@ -48,7 +48,7 @@ class OrderViewSet(viewsets.ModelViewSet):
         date_to      = self.request.query_params.get('to')
 
         if order_number is not None:
-            order_queryset = order_queryset.filter(primary_key=order_number)
+            order_queryset = order_queryset.filter(order_number=order_number)
         
         if status is not None:
             order_queryset = order_queryset.filter(status=status)
@@ -81,18 +81,28 @@ class OrderViewSet(viewsets.ModelViewSet):
         
         return order_queryset
 
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+    
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
+
     def create(self, request, *args, **kwargs):
         data = request.data
         request_data_validator = Validator(data)
         error_messages = request_data_validator.order_creation_request_data_validator()
         if error_messages == []:
             last_order = self.queryset.first()
-            data['order_number'] = last_order.order_number + 1
+
+            if last_order is not None:
+                data['order_number'] = last_order.order_number + 1
+            else:
+                data['order_number'] = 1
             
             for passenger in data['passengers']:
                 passenger['passenger_id'] = uuid.uuid4()
             
-            current_datetime = datetime.now(pytz.utc)
+            current_datetime = datetime.now() # If pytz.utc is given to now() as an argument, time will be considered in UTC-0 
 
             # london_timezone = pytz.timezone('Europe/London')
             # current_datetime = current_datetime.astimezone(london_timezone)
@@ -150,7 +160,6 @@ class OrderViewSet(viewsets.ModelViewSet):
             'message': 'booking data has not been updated'
         }
         return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 
 class PassengerView(viewsets.ModelViewSet):
     queryset = Passenger.objects.all()

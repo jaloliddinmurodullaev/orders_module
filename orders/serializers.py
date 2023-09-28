@@ -28,7 +28,7 @@ class TicketListSerializer(serializers.ModelSerializer):
 class DocumentSerializer(serializers.ModelSerializer):
     class Meta:
         model   = Document
-        fields = ('passport_number', 'passport_expiry', 'nationality', 'document_type')
+        fields = ('passport_number', 'passport_expiry', 'citizenship', 'document_type')
 
 # AgentSerializer. It is used for creating Offer model    
 class AgentSerializer(serializers.ModelSerializer):
@@ -135,7 +135,7 @@ class OrderSerializer(serializers.ModelSerializer):
                 segTmp = {
                     "leg": seg['leg'], 
                     "departure_airport": seg['departure_airport'], 
-                    "departure_date": seg['departure_date'], 
+                    "departure_date": seg.get('departure_date'), 
                     "departure_time": seg['departure_time'], 
                     "departure_timezone": seg['departure_timezone'], 
                     "arrival_airport": seg['arrival_airport'], 
@@ -146,29 +146,27 @@ class OrderSerializer(serializers.ModelSerializer):
                     "carrier_code": seg['carrier_code'], 
                     "carrier_name": seg['carrier_name'],
                     "carrier_logo": seg['carrier_logo'],
-                    "flights_info": {
-                        "departure_country": seg['flights_info']['departure_country'], 
-                        "departure_city": seg['flights_info']['departure_city'], 
-                        "departure_terminal": seg['flights_info']['departure_terminal'], 
-                        "stop_time_minutes": seg['flights_info']['stop_time_minutes'], 
-                        "arrival_country": seg['flights_info']['arrival_country'], 
-                        "arrival_city": seg['flights_info']['arrival_city'], 
-                        "arrival_terminal": seg['flights_info']['arrival_terminal'], 
-                        "airplane_info": {
-                            "airplane_name": seg['flights_info']['airplane_info']['airplane_name'], 
-                            "airplane_code": seg['flights_info']['airplane_info']['airplane_code'], 
-                            "has_wifi": seg['flights_info']['airplane_info']['has_wifi'],
-                            "seat_angle": seg['flights_info']['airplane_info']['seat_angle'], 
-                            "seat_width": seg['flights_info']['airplane_info']['seat_width'], 
-                            "seat_distance": seg['flights_info']['airplane_info']['seat_distance'] 
-                        },
-                        "marketing_airline_code": seg['flights_info']['marketing_airline_code'],
-                        "marketing_airline_logo": seg['flights_info']['marketing_airline_logo'],
-                        "marketing_airline_name": seg['flights_info']['marketing_airline_name'],
-                        "operating_airline_code": seg['flights_info']['operating_airline_code'],
-                        "operating_airline_logo": seg['flights_info']['operating_airline_logo'],
-                        "operating_airline_name": seg['flights_info']['operating_airline_name']
-                    }
+                    "departure_country": seg['departure_country'], 
+                    "departure_city": seg['departure_city'], 
+                    "departure_terminal": seg['departure_terminal'], 
+                    "stop_time_minutes": seg['stop_time_minutes'], 
+                    "arrival_country": seg['arrival_country'], 
+                    "arrival_city": seg['arrival_city'], 
+                    "arrival_terminal": seg['arrival_terminal'], 
+                    "airplane_info": {
+                        "airplane_name": seg['airplane_info']['airplane_name'], 
+                        "airplane_code": seg['airplane_info']['airplane_code'], 
+                        "has_wifi": seg['airplane_info']['has_wifi'],
+                        "seat_angle": seg['airplane_info']['seat_angle'], 
+                        "seat_width": seg['airplane_info']['seat_width'], 
+                        "seat_distance": seg['airplane_info']['seat_distance'] 
+                    },
+                    "marketing_airline_code": seg['marketing_airline_code'],
+                    "marketing_airline_logo": seg['marketing_airline_logo'],
+                    "marketing_airline_name": seg['marketing_airline_name'],
+                    "operating_airline_code": seg['operating_airline_code'],
+                    "operating_airline_logo": seg['operating_airline_logo'],
+                    "operating_airline_name": seg['operating_airline_name']
                 }
                 ans['segments'].append(segTmp)
             res['routes'].append(ans)

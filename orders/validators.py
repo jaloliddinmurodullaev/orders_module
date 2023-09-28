@@ -230,7 +230,7 @@ class Validator:
                     else:
                         passport_number = document.get('passport_number')
                         passport_expiry = document.get('passport_expiry')
-                        nationality     = document.get('nationality')
+                        citizenship     = document.get('citizenship')
                         document_type   = document.get('document_type')
 
                         if passport_number == None:
@@ -250,9 +250,9 @@ class Validator:
                                     'message': "passenger passport expiry date is overdue"
                                 })
                         
-                        if nationality == None:
+                        if citizenship == None:
                             error_messages.append({
-                                'message': "passenger nationality must be in document info"
+                                'message': "passenger citizenship must be in document info"
                             })
                         
                         if document_type == None:
@@ -407,96 +407,92 @@ class Validator:
                                         error_messages.append({
                                             'message': "segment data must contain carrier logo"
                                         })
-
-                                    flights_info = segment.get('flights_info', False)
-
-                                    if not flights_info:
+                                    if not segment.get('departure_country', False):
                                         error_messages.append({
-                                            'message': "segment data must contain flights info"
+                                            'message': "segment must contain departure country"
+                                        })
+                                    if not segment.get('departure_city', False):
+                                        error_messages.append({
+                                            'message': "segment must contain departure city"
+                                        })
+                                    if not segment.get('departure_terminal', False) and segment.get('departure_terminal', False) != "":
+                                        error_messages.append({
+                                            'message': "segment must contain departure terminal"
+                                        })
+                                    if not segment.get('stop_time_minutes', False):
+                                        error_messages.append({
+                                            'message': "segment must contain stop time minutes"
+                                        })
+                                    if not segment.get('arrival_country', False):
+                                        error_messages.append({
+                                            'message': "segment must contain arrival country"
+                                        })
+                                    if not segment.get('arrival_city', False):
+                                        error_messages.append({
+                                            'message': "segment must contain arrival city"
+                                        })
+                                    if not segment.get('arrival_terminal', False) and segment.get('arrival_terminal', False) != "":
+                                        error_messages.append({
+                                            'message': "segment must contain arrival terminal" 
+                                        })
+                                    if not segment.get('marketing_airline_code', False):
+                                        error_messages.append({
+                                            'message': "segment must contain marketing airline code"
+                                        })
+                                    if not segment.get('marketing_airline_logo', False):
+                                        error_messages.append({
+                                            'message': "segment must contain marketing airline logo"
+                                        })
+                                    if not segment.get('marketing_airline_name', False):
+                                        error_messages.append({
+                                            'message': "segment must contain marketing airline name"
+                                        })
+                                    if not segment.get('operating_airline_code', False):
+                                        error_messages.append({
+                                            'message': "segment must contain operating airline code"
+                                        })
+                                    if not segment.get('operating_airline_logo', False):
+                                        error_messages.append({
+                                            'message': "segment must contain operating airline logo"
+                                        })
+                                    if not segment.get('operating_airline_name', False):
+                                        error_messages.append({
+                                            'message': "segment must contain operating airline name"
+                                        })
+                                    if not segment.get('airplane_info', False):
+                                        error_messages.append({
+                                            'message': "segment must contain marketing airplane info"
+                                        })
+                                    if not segment.get('fare_messages', False):
+                                        error_messages.append({
+                                            'message': "segment must contain fare messages"
                                         })
                                     else:
-                                        if not flights_info.get('departure_country', False):
+                                        airplane_info = segment.get('airplane_info')
+                                        if not airplane_info.get('airplane_name', False):
                                             error_messages.append({
-                                                'message': "flights info must contain departure country"
+                                                'message': "airplane info must contain airplane name"
                                             })
-                                        if not flights_info.get('departure_city', False):
+                                        if not airplane_info.get('airplane_code', False):
                                             error_messages.append({
-                                                'message': "flights info must contain departure city"
+                                                'message': "airplane info must contain airplane code"
                                             })
-                                        if not flights_info.get('departure_terminal', False) and flights_info.get('departure_terminal', False) != "":
+                                        if airplane_info.get('has_wifi', None) == None:
                                             error_messages.append({
-                                                'message': "flights info must contain departure terminal"
+                                                'message': "airplane info must contain has_wifi"
                                             })
-                                        if not flights_info.get('stop_time_minutes', False):
+                                        if not airplane_info.get('seat_angle', False):
                                             error_messages.append({
-                                                'message': "flights info must contain stop time minutes"
+                                                'message': "airplane info must contain seat_angle"
                                             })
-                                        if not flights_info.get('arrival_country', False):
+                                        if not airplane_info.get('seat_width', False):
                                             error_messages.append({
-                                                'message': "flights info must contain arrival country"
+                                                'message': "airplane info must contain seat_width"
                                             })
-                                        if not flights_info.get('arrival_city', False):
+                                        if not airplane_info.get('seat_distance', False):
                                             error_messages.append({
-                                                'message': "flights info must contain arrival city"
+                                                'message': "airplane info must contain seat_distance"
                                             })
-                                        if not flights_info.get('arrival_terminal', False) and flights_info.get('arrival_terminal', False) != "":
-                                            error_messages.append({
-                                                'message': "flights info must contain arrival terminal" 
-                                            })
-                                        if not flights_info.get('marketing_airline_code', False):
-                                            error_messages.append({
-                                                'message': "flights info must contain marketing airline code"
-                                            })
-                                        if not flights_info.get('marketing_airline_logo', False):
-                                            error_messages.append({
-                                                'message': "flights info must contain marketing airline logo"
-                                            })
-                                        if not flights_info.get('marketing_airline_name', False):
-                                            error_messages.append({
-                                                'message': "flights info must contain marketing airline name"
-                                            })
-                                        if not flights_info.get('operating_airline_code', False):
-                                            error_messages.append({
-                                                'message': "flights info must contain operating airline code"
-                                            })
-                                        if not flights_info.get('operating_airline_logo', False):
-                                            error_messages.append({
-                                                'message': "flights info must contain operating airline logo"
-                                            })
-                                        if not flights_info.get('operating_airline_name', False):
-                                            error_messages.append({
-                                                'message': "flights info must contain operating airline name"
-                                            })
-                                        if not flights_info.get('airplane_info', False):
-                                            error_messages.append({
-                                                'message': "flights info must contain marketing airplane info"
-                                            })
-                                        else:
-                                            airplane_info = flights_info.get('airplane_info')
-                                            if not airplane_info.get('airplane_name', False):
-                                                error_messages.append({
-                                                    'message': "airplane info must contain airplane name"
-                                                })
-                                            if not airplane_info.get('airplane_code', False):
-                                                error_messages.append({
-                                                    'message': "airplane info must contain airplane code"
-                                                })
-                                            if airplane_info.get('has_wifi', None) == None:
-                                                error_messages.append({
-                                                    'message': "airplane info must contain has_wifi"
-                                                })
-                                            if not airplane_info.get('seat_angle', False):
-                                                error_messages.append({
-                                                    'message': "airplane info must contain seat_angle"
-                                                })
-                                            if not airplane_info.get('seat_width', False):
-                                                error_messages.append({
-                                                    'message': "airplane info must contain seat_width"
-                                                })
-                                            if not airplane_info.get('seat_distance', False):
-                                                error_messages.append({
-                                                    'message': "airplane info must contain seat_distance"
-                                                })
                     else:
                        error_messages.append({
                         'message': "routes data must be list object"

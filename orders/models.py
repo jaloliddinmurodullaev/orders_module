@@ -86,5 +86,5 @@ class Document(models.Model):
     passenger       = models.OneToOneField(Passenger, on_delete=models.CASCADE, related_name='document')
     passport_number = models.CharField(max_length=255)
     passport_expiry = models.DateField()
-    nationality     = models.CharField(max_length=255)
+    citizenship     = models.CharField(max_length=255)
     document_type   = models.CharField(max_length=300)
