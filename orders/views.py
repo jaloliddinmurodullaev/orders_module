@@ -1,6 +1,7 @@
 # build-ins
 import uuid
 from datetime import datetime, timedelta
+import pytz
 
 # django
 from django.utils import timezone
@@ -83,15 +84,24 @@ class OrderViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         data = request.data
         request_data_validator = Validator(data)
-        if request_data_validator.order_creation_request_data_validator():
-            last_order = len(self.queryset)
-
+        error_messages = request_data_validator.order_creation_request_data_validator()
+        if error_messages == []:
+            last_order = self.queryset.first()
+            data['order_number'] = last_order.order_number + 1
+            
             for passenger in data['passengers']:
                 passenger['passenger_id'] = uuid.uuid4()
-                # passenger['ticket'] = passenger['ticket_info']
+            
+            current_datetime = datetime.now(pytz.utc)
 
-            data['order_number'] = last_order + 1
-    
+            # london_timezone = pytz.timezone('Europe/London')
+            # current_datetime = current_datetime.astimezone(london_timezone)
+
+            formatted_datetime = current_datetime.strftime('%Y-%m-%d %H:%M:%S')
+            if '.' in formatted_datetime:
+                formatted_datetime = formatted_datetime[:formatted_datetime.index('.')] + formatted_datetime[-5:]
+            
+            data['created_at']   = formatted_datetime
 
             serializer = OrderCreateSerializer(data=data)
 
@@ -102,7 +112,7 @@ class OrderViewSet(viewsets.ModelViewSet):
                     'message': 'booking data has been saved'
                 }
                 return Response(data=response, status=status.HTTP_201_CREATED)
-            
+
             response = {
                 'status' : 'error',
                 'message': 'booking data has not been saved'
@@ -111,7 +121,7 @@ class OrderViewSet(viewsets.ModelViewSet):
         else:
             response = {
                 'status' : 'error',
-                'message': 'Order creation data is invalid. Please check it again!'
+                'message': error_messages
             }
             return Response(data=response, status=status.HTTP_400_BAD_REQUEST)
 

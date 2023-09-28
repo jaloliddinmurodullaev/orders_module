@@ -18,6 +18,7 @@ class TicketSerializer(serializers.ModelSerializer):
         model   = Ticket
         fields = ('price_info', 'fares_info', 'baggage_info')
 
+# TicketListSerializer. It is used for listing Ticket model
 class TicketListSerializer(serializers.ModelSerializer):
     class Meta:
         model   = Ticket
@@ -35,6 +36,7 @@ class AgentSerializer(serializers.ModelSerializer):
         model   = Agent
         fields = ('agent_id', 'agent_name')
 
+# PassengerCreateSerializer. It is used for serializing and deserializing Passenger
 class PassengerSerializer(serializers.ModelSerializer):
     ticket_info = TicketListSerializer()
     document = DocumentSerializer()
@@ -179,16 +181,27 @@ class OrderSerializer(serializers.ModelSerializer):
 class OrderCreateSerializer(serializers.ModelSerializer):
     passengers = PassengerCreateSerializer(many=True)
     agent      = AgentSerializer()
-    status     = serializers.SerializerMethodField()
+    status     = serializers.CharField()
 
     class Meta:
         model  = Order
         fields = "__all__"
-
-    def get_status(self, obj):
+            
+    def to_representation(self, obj: Order):
+        representation = super().to_representation(obj)
         for choice in obj.ORDER_STATUS:
-            if choice[0] == obj.status:
-                return choice[1]
+            if choice[0] == representation['status']:
+                representation['status'] = choice[1]
+                break
+        return representation
+
+    def to_internal_value(self, data):
+        internal_value = super().to_internal_value(data)
+        for choice in Order.ORDER_STATUS:
+            if choice[1] == internal_value['status']:
+                internal_value['status'] = choice[0]
+                break
+        return internal_value
 
     def create(self, validated_data):
         passengers_data = validated_data.pop('passengers')
@@ -200,6 +213,11 @@ class OrderCreateSerializer(serializers.ModelSerializer):
             if choice[1] == status_representation:
                 validated_data['status'] = choice[0]
                 break
+        
+        if Order.objects.filter(order_number=validated_data['order_number']).exists():
+            new_order_number = Order.objects.first().order_number + 1
+            print(new_order_number)
+            validated_data['order_number'] = new_order_number
 
         # Order creation
         order = Order.objects.create(**validated_data)

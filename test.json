@@ -1,0 +1,171 @@
+{
+    "order_number": 17,
+    "passengers": [OrderedDict([("passenger_id", UUID("38407a6b-5d02-4652-8ccd-057011f0b63b")), ("firstname",
+            "Jaloliddin"), ("lastname",
+            "Murodullayev"), ("middlename",
+            "Hojiakbar o"g"li"), ("gender",
+            "Male"), ("birth_date", datetime.date(2001,
+            9,
+            1)), ("passenger_category",
+            "ADT"), ("passenger_type",
+            "Student"), ("phone_number",
+            "+9989992747465"), ("email_address",
+            "test@mail.uz"), ("document", OrderedDict([("passport_number",
+                "AB7748325"), ("passport_expiry", datetime.date(2030,
+                12,
+                12)), ("nationality",
+                "UZ"), ("document_type",
+                "PSP")
+            ])), ("ticket", OrderedDict([("price_info",
+                [
+                    {
+                        "base_amount": 91.13,
+                        "tax_amount": 32.25,
+                        "tax_details": [
+                            {
+                                "code": "YQ",
+                                "total": 1200,
+                                "currency": "RUB",
+                                "description": "Additional fee added to the base fare of an airline ticket"
+                            }
+                        ],
+                        "fee_amount": 1.04,
+                        "commission_amount": 0,
+                        "total_amount": 124.42,
+                        "payable_amount": 124.42
+                    }
+                ]), ("fares_info",
+                [
+                    {
+                        "leg": "IST-ESB",
+                        "upsell": {
+                            "name": "Lite",
+                            "services": [
+                                {
+                                    "status": True,
+                                    "code": "AKN",
+                                    "name": "Bonus meal"
+                                }
+                            ]
+                        },
+                        "fare_code": "QEF",
+                        "service_class": "economy",
+                        "booking_class": "L",
+                        "fare_messages": {
+                            "LTD": "",
+                            "PEN": ""
+                        },
+                        "description": ""
+                    }
+                ]), ("baggage_info",
+                [
+                    {
+                        "leg": "IST-ESB",
+                        "baggage": {
+                            "value": 1,
+                            "unit": "PC",
+                            "size": {
+                                "height": 129,
+                                "width": 236,
+                                "length": 112,
+                                "unit": "cm"
+                            }
+                        },
+                        "hand_baggage": {
+                            "value": 1,
+                            "unit": "PC",
+                            "size": {
+                                "height": 29,
+                                "width": 23,
+                                "length": 17,
+                                "unit": "cm"
+                            }
+                        },
+                        "description": " "
+                    }
+                ])
+            ]))
+        ])
+    ],
+    "agent": OrderedDict([("agent_id", UUID("d3ea46f4-380d-4b9e-b600-9faaa635113a")), ("agent_name",
+        "Jaloliddin Travel")
+    ]),
+    "gds_pnr": "U9J87M",
+    "supplier_pnr": "J9-U9J87M",
+    "created_at": datetime.datetime(2023,
+    9,
+    28,
+    8,
+    8,
+    5),
+    "ticket_time_limit": datetime.datetime(2023,
+    9,
+    13,
+    21,
+    43),
+    "void_time_limit": 120,
+    "price_info": {
+        "price": 252.0,
+        "fee_amount": 1.02,
+        "commission_amount": 0
+    },
+    "currency": "USD",
+    "fare": {
+        "offer_id": "4b739ef16ee7af525f7381b2ba7ce661",
+        "routes": [
+            {
+                "route_index": 1,
+                "direction": "TAS-IST",
+                "stops": 1,
+                "segments": [
+                    {
+                        "leg": "IST-ESB",
+                        "departure_airport": "IST",
+                        "departure_date": "2023-04-04",
+                        "departure_time": "13:00:00",
+                        "departure_timezone": "GMT+5:00",
+                        "arrival_airport": "ESB",
+                        "arrival_date": "2023-04-04",
+                        "arrival_time": "14:05:00",
+                        "arrival_timezone": "GMT+5:00",
+                        "duration_minutes": 65,
+                        "carrier_code": "TK",
+                        "carrier_name": "Turkish Airlines",
+                        "carrier_logo": "https://b2b.easybooking.uz/images/airline/TK.svg",
+                        "flights_info": {
+                            "departure_country": "Turkey",
+                            "departure_city": "Istanbul",
+                            "departure_terminal": "",
+                            "stop_time_minutes": 150,
+                            "arrival_country": "Turkey",
+                            "arrival_city": "Ankara",
+                            "arrival_terminal": "",
+                            "airplane_info": {
+                                "airplane_name": "78D BOEING B737-800",
+                                "airplane_code": "78D",
+                                "has_wifi": True,
+                                "seat_angle": "10cm",
+                                "seat_width": "43cm",
+                                "seat_distance": "70cm"
+                            },
+                            "marketing_airline_code": "TK",
+                            "marketing_airline_logo": "https://b2b.easybooking.uz/images/airline/TK.svg",
+                            "marketing_airline_name": "Turkish Airlines",
+                            "operating_airline_code": "TK",
+                            "operating_airline_logo": "https://b2b.easybooking.uz/images/airline/TK.svg",
+                            "operating_airline_name": "Turkish Airlines"
+                        },
+                        "fare_messages": {
+                            "LTD": "",
+                            "PEN": ""
+                        }
+                    }
+                ]
+            }
+        ]
+    },
+    "provider": {
+        "name": "AerTicket",
+        "provider_id": "da729774-411b-4dd6-8e36-3f67db98531e"
+    }
+}
