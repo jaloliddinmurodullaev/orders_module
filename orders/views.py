@@ -84,17 +84,14 @@ class OrderViewSet(viewsets.ModelViewSet):
         data = request.data
         request_data_validator = Validator(data)
         if request_data_validator.order_creation_request_data_validator():
-            last_order = self.queryset.last()
+            last_order = len(self.queryset)
 
             for passenger in data['passengers']:
                 passenger['passenger_id'] = uuid.uuid4()
                 # passenger['ticket'] = passenger['ticket_info']
 
-            if last_order is not None:
-                number = self.queryset.last()
-                data['order_number'] = number.order_number + 1
-            else:
-                data['order_number'] = 1
+            data['order_number'] = last_order + 1
+    
 
             serializer = OrderCreateSerializer(data=data)
 

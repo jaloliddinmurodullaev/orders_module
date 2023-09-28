@@ -55,7 +55,6 @@ class PassengerCreateSerializer(serializers.ModelSerializer):
                   'passenger_category', 'passenger_type', 'phone_number', 'email_address', 'document', 'ticket_info')
 
     def create(self, validated_data):
-        print(validated_data.get('ticket'))
         document_data = validated_data.pop('document')
         ticket_data = validated_data.get('ticket_info')
 
@@ -213,7 +212,6 @@ class OrderCreateSerializer(serializers.ModelSerializer):
 
         # Passengers creation inside Order
         for passenger_data in passengers_data:
-            print(passenger_data)
             ticket_data = passenger_data.pop('ticket')
             document_data = passenger_data.pop('document')
             
