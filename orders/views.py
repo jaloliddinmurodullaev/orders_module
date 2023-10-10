@@ -20,6 +20,7 @@ from .validators import Validator
 
 # serializers
 from .serializers import OrderSerializer
+from .serializers import OrderRetrieveSerializer
 from .serializers import OrderCreateSerializer
 from .serializers import OrderUpdateSerializer
 from .serializers import PassengerUpdateSerializer
@@ -85,7 +86,19 @@ class OrderViewSet(viewsets.ModelViewSet):
         return super().list(request, *args, **kwargs)
     
     def retrieve(self, request, *args, **kwargs):
-        return super().retrieve(request, *args, **kwargs)
+        instance = self.get_object()
+
+        if instance is not None:
+            pass
+            serializer = OrderRetrieveSerializer(instance=instance)
+            return Response(data=serializer.data, status=status.HTTP_200_OK)
+        
+        response = {
+            'status': 'error',
+            'message': 'order not found'
+        }
+        return Response(data=response, status=status.HTTP_404_NOT_FOUND)
+
 
     def create(self, request, *args, **kwargs):
         data = request.data
@@ -184,7 +197,28 @@ class PassengerView(viewsets.ModelViewSet):
         instance = self.get_object()
 
         try:
-            serializer = PassengerUpdateSerializer(instance, data=request.data, partial=True)
+            original_passenger = {
+                "firstname": instance.firstname,
+                "lastname": instance.lastname,
+                "birth_date": str(instance.birth_date),
+                "document": {
+                    "passport_number": instance.document.passport_number,
+                    "passport_expiry": str(instance.document.passport_expiry),
+                    "citizenship": instance.document.citizenship,
+                    "document_type": instance.document.document_type
+                }
+            }
+            # print(dict(original_passenger))
+            # print(dict(request.data))
+            if self.count_different_elements(dict(original_passenger), dict(request.data)) < 4:
+                print(self.count_different_elements(dict(original_passenger), dict(request.data)))
+                serializer = PassengerUpdateSerializer(instance, data=request.data, partial=True)
+            else:
+                response = {
+                    "status": "error",
+                    "message": "you can change up to 3 elements"
+                }
+                return Response(data=response, status=status.HTTP_406_NOT_ACCEPTABLE)
         except Exception as e:
             response = {
                 "status": "error",
@@ -205,6 +239,32 @@ class PassengerView(viewsets.ModelViewSet):
             "messsage": "passenger data has not been updated"
         }
         return Response(response, status=status.HTTP_400_BAD_REQUEST)
+
+    def count_different_elements(self, original_dict, new_dict):
+        different_elements = 0
+
+        different_elements += self.count_changed_characters(original_dict['firstname'], new_dict['firstname'])
+        different_elements += self.count_changed_characters(original_dict['lastname'], new_dict['lastname'])
+        different_elements += self.count_changed_characters(original_dict['birth_date'], new_dict['birth_date'])
+        different_elements += self.count_changed_characters(original_dict['document']['passport_number'], new_dict['document']['passport_number'])
+        different_elements += self.count_changed_characters(original_dict['document']['passport_expiry'], new_dict['document']['passport_expiry'])
+        different_elements += self.count_changed_characters(original_dict['document']['citizenship'], new_dict['document']['citizenship'])
+        different_elements += self.count_changed_characters(original_dict['document']['document_type'], new_dict['document']['document_type'])
+
+        return different_elements
+
+    def count_changed_characters(self, original_string, updated_string):
+        changed_characters = 0
+
+        for i in range(len(original_string)):
+            if i >= len(updated_string) or original_string[i] != updated_string[i]:
+                changed_characters += 1
+
+        changed_characters += abs(len(original_string) - len(updated_string))
+
+        print(changed_characters)
+
+        return changed_characters
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()

@@ -60,7 +60,7 @@ class Passenger(models.Model):
         ('Female', 'Female')
     )
 
-    order              = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='passenger')
+    order              = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='passengers')
     passenger_id       = models.UUIDField(primary_key=True)
     firstname          = models.CharField(max_length=255)
     lastname           = models.CharField(max_length=255)

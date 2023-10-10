@@ -24,8 +24,20 @@ class TicketListSerializer(serializers.ModelSerializer):
         model   = Ticket
         fields = ('price_info', 'baggage_info')
 
+# TicketListSerializer. It is used for listing Ticket model
+class TicketRetrieveSerializer(serializers.ModelSerializer):
+    class Meta:
+        model   = Ticket
+        fields = ('price_info', 'fares_info', 'baggage_info')
+
 # DocumentSerializer. It is used for serializing and deserializing Document model
 class DocumentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model   = Document
+        fields = ('passport_number', 'passport_expiry', 'citizenship', 'document_type')
+
+# DocumentUpdateSerializer. It is used for updating Document
+class DocumentUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model   = Document
         fields = ('passport_number', 'passport_expiry', 'citizenship', 'document_type')
@@ -36,10 +48,18 @@ class AgentSerializer(serializers.ModelSerializer):
         model   = Agent
         fields = ('agent_id', 'agent_name')
 
-# PassengerCreateSerializer. It is used for serializing and deserializing Passenger
+    ticket_info = TicketRetrieveSerializer()
+    document    = DocumentSerializer()
+
+    class Meta:
+        model  = Passenger
+        fields = ('passenger_id', 'firstname', 'lastname', 'middlename', 'gender', 'birth_date',
+                  'passenger_category', 'passenger_type', 'phone_number', 'email_address', 'document', 'ticket_info')
+
+# PassengerSerializer. It is used for getting all Passengers
 class PassengerSerializer(serializers.ModelSerializer):
     ticket_info = TicketListSerializer()
-    document = DocumentSerializer()
+    document    = DocumentSerializer()
 
     class Meta:
         model  = Passenger
@@ -56,6 +76,8 @@ class PassengerCreateSerializer(serializers.ModelSerializer):
         fields = ('passenger_id', 'firstname', 'lastname', 'middlename', 'gender', 'birth_date',
                   'passenger_category', 'passenger_type', 'phone_number', 'email_address', 'document', 'ticket_info')
 
+# PassengerCreateSerializer. It is used for serializing and deserializing Passenger
+class PassengersRetrieveSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         document_data = validated_data.pop('document')
         ticket_data = validated_data.get('ticket_info')
@@ -77,7 +99,7 @@ class PassengerRetrieveSerializer(serializers.ModelSerializer):
 
 # PassengerUpdateSerializer. It is used for updating Passenger
 class PassengerUpdateSerializer(serializers.ModelSerializer):
-    document = DocumentSerializer()
+    document = DocumentUpdateSerializer()
 
     class Meta:
         model  = Passenger
@@ -97,9 +119,9 @@ class PassengerUpdateSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
 
-# OrderSerializer. It is used for getting Order
+# OrderSerializer. It is used for getting all Orders
 class OrderSerializer(serializers.ModelSerializer):
-    passenger   = PassengerSerializer(many=True)
+    passengers  = PassengerSerializer(many=True)
     agent       = AgentSerializer()
     status      = serializers.SerializerMethodField()
     flight_info = serializers.SerializerMethodField(source='fare')
@@ -108,13 +130,94 @@ class OrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
         fields = ('order_number', 'agent', 'status', 'gds_pnr', 'supplier_pnr', 'created_at', 'ticket_time_limit',
-                  'void_time_limit', 'price', 'currency', 'flight_info', 'passenger', 'provider')
+                  'void_time_limit', 'price', 'currency', 'flight_info', 'passengers', 'provider')
 
     def get_status(self, obj):
         for choice in obj.ORDER_STATUS:
             if choice[0] == obj.status:
                 return choice[1]
+
+    def get_passengers(self, obj):
+        return obj.passenger
             
+    def get_flight_info(self, obj):
+        return self.flight_info_parser(obj.fare)
+    
+    def flight_info_parser(self, data):
+        res = {
+            'routes': []
+        }
+
+        for route in data['routes']:
+            ans = {
+                "route_index": route['route_index'],
+                "direction": route['direction'],
+                "stops": route['stops'],
+                "segments": []
+            }
+
+            for seg in route['segments']:
+                segTmp = {
+                    "leg": seg['leg'], 
+                    "departure_airport": seg['departure_airport'], 
+                    "departure_date": seg.get('departure_date'), 
+                    "departure_time": seg['departure_time'], 
+                    "departure_timezone": seg['departure_timezone'], 
+                    "arrival_airport": seg['arrival_airport'], 
+                    "arrival_date": seg['arrival_date'], 
+                    "arrival_time": seg['arrival_time'], 
+                    "arrival_timezone": seg['arrival_timezone'],
+                    "duration_minutes": seg['duration_minutes'], 
+                    "carrier_code": seg['carrier_code'], 
+                    "carrier_name": seg['carrier_name'],
+                    "carrier_logo": seg['carrier_logo'],
+                    "departure_country": seg['departure_country'], 
+                    "departure_city": seg['departure_city'], 
+                    "departure_terminal": seg['departure_terminal'], 
+                    "stop_time_minutes": seg['stop_time_minutes'], 
+                    "arrival_country": seg['arrival_country'], 
+                    "arrival_city": seg['arrival_city'], 
+                    "arrival_terminal": seg['arrival_terminal'], 
+                    "airplane_info": {
+                        "airplane_name": seg['airplane_info']['airplane_name'], 
+                        "airplane_code": seg['airplane_info']['airplane_code'], 
+                        "has_wifi": seg['airplane_info']['has_wifi'],
+                        "seat_angle": seg['airplane_info']['seat_angle'], 
+                        "seat_width": seg['airplane_info']['seat_width'], 
+                        "seat_distance": seg['airplane_info']['seat_distance'] 
+                    },
+                    "marketing_airline_code": seg['marketing_airline_code'],
+                    "marketing_airline_logo": seg['marketing_airline_logo'],
+                    "marketing_airline_name": seg['marketing_airline_name'],
+                    "operating_airline_code": seg['operating_airline_code'],
+                    "operating_airline_logo": seg['operating_airline_logo'],
+                    "operating_airline_name": seg['operating_airline_name']
+                }
+                ans['segments'].append(segTmp)
+            res['routes'].append(ans)
+        return res
+
+    def get_price(self, obj):
+        return obj.price_info['price']
+
+# OrderRetrieveSerializer. It is used for getting single Order
+class OrderRetrieveSerializer(serializers.ModelSerializer):
+    passengers  = PassengersRetrieveSerializer(many=True)
+    agent       = AgentSerializer()
+    status      = serializers.CharField()
+    flight_info = serializers.SerializerMethodField(source='fare')
+    price       = serializers.SerializerMethodField(source='price_info')
+
+    class Meta:
+        model  = Order
+        fields = ('order_number', 'agent', 'status', 'gds_pnr', 'supplier_pnr', 'created_at', 'ticket_time_limit',
+                  'void_time_limit', 'price', 'currency', 'flight_info', 'passengers', 'provider')
+
+    def get_status(self, obj):
+        for choice in obj.ORDER_STATUS:
+            if choice[0] == obj.status:
+                return choice[1]
+
     def get_flight_info(self, obj):
         return self.flight_info_parser(obj.fare)
     
